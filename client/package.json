@@ -29,6 +29,9 @@
     "vite": "^5.4.10",
     "esbuild": "0.21.5"
   },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.62.4"
+  },
   "overrides": {
     "esbuild": "0.21.5"
   }

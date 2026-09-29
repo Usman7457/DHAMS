@@ -473,7 +473,7 @@ app.get('/api/domains', authenticate, async (req, res) => {
     sql += ` ORDER BY d.id ASC`;
 
     const result = await query(sql, params);
-    
+
     // Decrypt passwords before returning to frontend
     const decryptedRows = result.rows.map((row) => ({
       ...row,
@@ -984,18 +984,4 @@ app.get('/api/dashboard/stats', authenticate, async (req, res) => {
   }
 });
 
-const PORT = Number(process.env.PORT) || 5000;
-
-const server = app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Database target: ${process.env.DB_NAME || 'DHAMS'}`);
-});
-
-server.on('error', (error) => {
-  if (error.code === 'EADDRINUSE') {
-    console.error(`Port ${PORT} is already in use. Stop the other service or set a different PORT in server/.env.`);
-  } else {
-    console.error('Server startup error:', error);
-  }
-  process.exit(1);
-});
+export default app;

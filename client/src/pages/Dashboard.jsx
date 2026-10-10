@@ -24,6 +24,7 @@ import {
   Legend,
   CartesianGrid,
 } from 'recharts';
+import { DashboardSkeleton } from '../components/DashboardSkeleton';
 
 export function DashboardPage({
   stats,
@@ -34,8 +35,13 @@ export function DashboardPage({
   setActiveTab,
   refreshData,
   currentUser,
+  loading = false,
 }) {
   const isAdmin = currentUser?.role === 'admin';
+
+  if (loading) {
+    return <DashboardSkeleton isAdmin={isAdmin} currentUser={currentUser} />;
+  }
 
   // Graph 1 Data: System Asset Summary
   const assetSummaryData = [

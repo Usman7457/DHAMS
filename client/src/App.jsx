@@ -49,7 +49,7 @@ export default function App() {
   const [hostings, setHostings] = useState([]);
   const [domainProviders, setDomainProviders] = useState([]);
   const [hostingProviders, setHostingProviders] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(Boolean(localStorage.getItem('dhams_token')));
 
   // Toast state
   const [toasts, setToasts] = useState([]);
@@ -122,6 +122,7 @@ export default function App() {
       setCurrentUser(res.data.user);
       setDismissedNotifications(false);
       addToast(`Welcome back, ${res.data.user.fullName}!`, 'success');
+      setLoading(true);
       setActiveTab('dashboard');
     } catch (err) {
       setLoginError(err.response?.data?.message || 'Login failed. Please check credentials.');
@@ -153,8 +154,6 @@ export default function App() {
 
   return (
     <div className="h-screen w-screen overflow-hidden flex flex-col bg-[#FDFBF7] text-stone-800 font-sans">
-      <ToastContainer toasts={toasts} removeToast={removeToast} />
-
       {/* TOP NAVBAR (FIXED AT TOP) */}
       <Navbar
         currentUser={currentUser}
@@ -196,6 +195,7 @@ export default function App() {
               setActiveTab={setActiveTab}
               refreshData={fetchAllData}
               currentUser={currentUser}
+              loading={loading}
             />
           )}
 
@@ -205,6 +205,7 @@ export default function App() {
               refreshData={fetchAllData}
               addToast={addToast}
               currentUser={currentUser}
+              loading={loading}
             />
           )}
 
@@ -216,6 +217,7 @@ export default function App() {
               refreshData={fetchAllData}
               addToast={addToast}
               currentUser={currentUser}
+              loading={loading}
             />
           )}
 
@@ -235,6 +237,7 @@ export default function App() {
               refreshData={fetchAllData}
               addToast={addToast}
               currentUser={currentUser}
+              loading={loading}
             />
           )}
 
@@ -253,6 +256,9 @@ export default function App() {
           )}
         </main>
       </div>
+
+      {/* TOAST NOTIFICATIONS (TOP LAYER ABOVE ALL MODALS & BLUR OVERLAYS) */}
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
     </div>
   );
 }

@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { Plus, Edit, Trash2, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import api from '../api';
+import Skeleton from 'react-loading-skeleton';
 
-export function ClientsPage({ clients, refreshData, addToast, currentUser }) {
+export function ClientsPage({ clients, refreshData, addToast, currentUser, loading = false }) {
   const isAdmin = currentUser?.role === 'admin';
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -181,7 +182,28 @@ export function ClientsPage({ clients, refreshData, addToast, currentUser }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
-              {paginatedClients.length === 0 ? (
+              {loading ? (
+                Array.from({ length: 5 }).map((_, idx) => (
+                  <tr key={idx} className="hover:bg-stone-50/50">
+                    <td className="py-3 px-4"><Skeleton width={32} height={16} borderRadius={4} /></td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-2.5">
+                        <Skeleton circle width={32} height={32} />
+                        <div className="space-y-1">
+                          <Skeleton width={110} height={15} borderRadius={4} />
+                          <Skeleton width={70} height={10} borderRadius={4} />
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4"><Skeleton width={100} height={14} borderRadius={4} /></td>
+                    <td className="py-3 px-4"><Skeleton width={120} height={14} borderRadius={4} /></td>
+                    <td className="py-3 px-4"><Skeleton width={90} height={14} borderRadius={4} /></td>
+                    <td className="py-3 px-4 text-center"><Skeleton width={36} height={20} borderRadius={999} /></td>
+                    <td className="py-3 px-4 text-center"><Skeleton width={36} height={20} borderRadius={999} /></td>
+                    {isAdmin && <td className="py-3 px-4 text-right"><Skeleton width={55} height={26} borderRadius={6} /></td>}
+                  </tr>
+                ))
+              ) : paginatedClients.length === 0 ? (
                 <tr>
                   <td colSpan={isAdmin ? 8 : 7} className="py-8 text-center text-stone-400 text-xs">
                     No matching clients found.

@@ -14,8 +14,9 @@ import {
 } from 'lucide-react';
 import api from '../api';
 import { SearchableSelect } from '../components/SearchableSelect';
+import Skeleton from 'react-loading-skeleton';
 
-export function HostingsPage({ hostings, clients, domains, hostingProviders = [], refreshData, addToast, currentUser }) {
+export function HostingsPage({ hostings, clients, domains, hostingProviders = [], refreshData, addToast, currentUser, loading = false }) {
   const isAdmin = currentUser?.role === 'admin';
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -184,22 +185,12 @@ export function HostingsPage({ hostings, clients, domains, hostingProviders = []
       const dupDom = hostings.some(
         (h) =>
           String(h.domain_id) === String(formData.domain_id) &&
-          (!editingHosting || h.id !== editingHosting.id)
+          (!editingHosting || String(h.id) !== String(editingHosting.id))
       );
       if (dupDom) {
         addToast('A hosting record for this linked domain already exists in the system!', 'error');
         return;
       }
-    }
-    const dupPanel = hostings.some(
-      (h) =>
-        (h.panel_url || '').trim().toLowerCase() === (formData.panel_url || '').trim().toLowerCase() &&
-        (h.username || '').trim().toLowerCase() === (formData.username || '').trim().toLowerCase() &&
-        (!editingHosting || h.id !== editingHosting.id)
-    );
-    if (dupPanel) {
-      addToast(`Hosting account for username "${formData.username.trim()}" already exists on this panel!`, 'error');
-      return;
     }
 
     try {
@@ -307,7 +298,24 @@ export function HostingsPage({ hostings, clients, domains, hostingProviders = []
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
-              {paginatedHostings.length === 0 ? (
+              {loading ? (
+                Array.from({ length: 5 }).map((_, idx) => (
+                  <tr key={idx} className="hover:bg-stone-50/50">
+                    <td className="py-3 px-4"><Skeleton width={32} height={16} borderRadius={4} /></td>
+                    <td className="py-3 px-4">
+                      <div className="space-y-1.5">
+                        <Skeleton width={130} height={16} borderRadius={4} />
+                        <Skeleton width={85} height={12} borderRadius={4} />
+                      </div>
+                    </td>
+                    <td className="py-3 px-4"><Skeleton width={110} height={16} borderRadius={4} /></td>
+                    <td className="py-3 px-4"><Skeleton width={120} height={16} borderRadius={4} /></td>
+                    <td className="py-3 px-4"><Skeleton width={80} height={14} borderRadius={4} /></td>
+                    <td className="py-3 px-4 text-center"><Skeleton width={65} height={20} borderRadius={999} /></td>
+                    {isAdmin && <td className="py-3 px-4 text-right"><Skeleton width={55} height={26} borderRadius={6} /></td>}
+                  </tr>
+                ))
+              ) : paginatedHostings.length === 0 ? (
                 <tr>
                   <td colSpan={isAdmin ? 7 : 6} className="py-8 text-center text-stone-400 text-xs">
                     No hosting records found.

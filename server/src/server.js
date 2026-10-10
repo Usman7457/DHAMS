@@ -723,13 +723,6 @@ app.post('/api/hostings', authenticate, async (req, res) => {
         return res.status(400).json({ message: 'Hosting record for this linked domain already exists in the system!' });
       }
     }
-    const dupPanel = await query('SELECT id FROM hostings WHERE LOWER(panel_url) = $1 AND LOWER(username) = $2', [
-      panel_url.trim().toLowerCase(),
-      username.trim().toLowerCase(),
-    ]);
-    if (dupPanel.rowCount > 0) {
-      return res.status(400).json({ message: `Hosting account for username "${username}" already exists on this panel!` });
-    }
 
     const encryptedProvPass = encryptPassword(provider_password);
     const encryptedPanelPass = encryptPassword(password);
@@ -786,20 +779,18 @@ app.put('/api/hostings/:id', authenticate, async (req, res) => {
     notes,
   } = req.body;
 
+  if (!hosting_provider || !panel_url || !username || !password || !expiry_date) {
+    return res.status(400).json({
+      message: 'Hosting provider, login panel URL, username, password, and expiry date are required',
+    });
+  }
+
   try {
     if (domain_id) {
       const dupDom = await query('SELECT id FROM hostings WHERE domain_id = $1 AND id != $2', [parseInt(domain_id, 10), parseInt(id, 10)]);
       if (dupDom.rowCount > 0) {
         return res.status(400).json({ message: 'Hosting record for this linked domain already exists in the system!' });
       }
-    }
-    const dupPanel = await query('SELECT id FROM hostings WHERE LOWER(panel_url) = $1 AND LOWER(username) = $2 AND id != $3', [
-      panel_url.trim().toLowerCase(),
-      username.trim().toLowerCase(),
-      parseInt(id, 10),
-    ]);
-    if (dupPanel.rowCount > 0) {
-      return res.status(400).json({ message: `Hosting account for username "${username}" already exists on this panel!` });
     }
 
     const encryptedProvPass = encryptPassword(provider_password);
@@ -983,5 +974,20 @@ app.get('/api/dashboard/stats', authenticate, async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch dashboard statistics' });
   }
 });
+
+if (!process.env.VERCEL) {
+  const PORT = Number(process.env.PORT) || 5000;
+  const server = app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+
+  server.on('error', (error) => {
+    if (error.code === 'EADDRINUSE') {
+      console.error(`Port ${PORT} is already in use.`);
+    } else {
+      console.error('Server startup error:', error);
+    }
+  });
+}
 
 export default app;
